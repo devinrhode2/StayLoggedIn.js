@@ -7,6 +7,7 @@
 // @match        https://outlook.office.com/*
 // @grant        none
 // @run_at       document_end
+// @license      MIT
 // ==/UserScript==
 
 (function() {
