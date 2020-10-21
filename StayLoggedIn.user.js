@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         reload outlook every 9 minutes
+// @name         stay logged into outlook by periodically reloading page
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  try to take over the world!
-// @author       You
+// @author       DevinRhode2
 // @match        https://outlook.office.com/*
 // @grant        none
 // @run_at       document_end
@@ -11,26 +11,38 @@
 // ==/UserScript==
 
 (function() {
-    const seconds = s => s * 1000;
-    const minutes = m => seconds(m * 60);
-    const log = msg => console.log('StayLoggedIn', msg) //
+    let clearTimer = () => {};
+    let theTimer = undefined;
+    function startTimer() {
+        const seconds = s => s * 1000;
+        const minutes = m => seconds(m * 60);
+        const log = msg => console.log('DGR '+msg);
 
-    const calc = () => minutes(4) + seconds(55)
-    const result = calc();
-    clearTimeout(window.theTimer);
-    window.theTimer = setTimeout(() => {
-        log('reloading in 3...');
-        setTimeout(() => {
-            log('2...');
-        }, seconds(1));
-        setTimeout(() => {
-            log('1...');
-        }, seconds(2));
-        setTimeout(() => {
-          window.location.reload();
-        }, seconds(3));
-    }, result);
-    setTimeout(() => {
-      log('reload set for '+calc.toString().replace('() => ', '')+' from now');
-    }, 1);
+        const calc = () => minutes(4) + seconds(55)
+        const result = calc();
+        clearTimeout(theTimer);
+        theTimer = setTimeout(() => {
+            log('reloading in 3...');
+            setTimeout(() => {
+                log('2...');
+            }, seconds(1));
+            setTimeout(() => {
+                log('1...');
+            }, seconds(2));
+            setTimeout(() => {
+              window.location.reload();
+            }, seconds(3));
+        }, result);
+        log('reload set for '+calc.toString().replace('() => ', '')+' from now');
+        clearTimer = () => clearTimeout(theTimer);
+    }
+    // avoid reloading while you are viewing the page:
+    window.addEventListener('focus', clearTimer);
+    window.addEventListener('blur', startTimer);
+    window.addEventListener('visibilityChange', () => {
+        // same as blur:
+        if (document.hidden === true) startTimer()
+        // same as focus:
+        else clearTimer()
+    });
 })();
